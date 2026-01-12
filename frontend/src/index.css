@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  /* Simple Dark Theme */
+  --bg-app: #1e1e1e;
+  --bg-input: #2d2d2d;
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --accent: #2563eb;
+  /* Standard Blue */
+  --border: #333333;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Prose Styles */
+.prose {
+  line-height: 1.6;
+  color: #e0e0e0;
+}
+
+.prose strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.prose code {
+  background: #333;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
