@@ -18,16 +18,16 @@ const ChatBubble = ({ message }) => {
                 {/* Content */}
                 <div className={`
           ${isUser
-                        ? 'bg-[#292a2d] px-6 py-4 rounded-[20px] rounded-tr-[5px] max-w-[85%]'
+                        ? 'bg-blue-600 dark:bg-[#292a2d] text-white px-6 py-4 rounded-[20px] rounded-tr-[5px] max-w-[85%] shadow-md'
                         : 'flex-1 min-w-0 px-2'
                     }
         `}>
                     {/* Bot Name */}
                     {!isUser && (
-                        <div className="font-medium text-sm mb-2 text-[#e3e3e3]">Support Assistant</div>
+                        <div className="font-medium text-sm mb-2 text-gray-500 dark:text-[#e3e3e3]">Support Assistant</div>
                     )}
 
-                    <div className={`prose prose-invert max-w-none ${isUser ? 'text-[15px]' : ''}`}>
+                    <div className={`max-w-none prose-sm sm:prose-base ${isUser ? 'text-[15px] text-white' : 'prose dark:prose-invert text-gray-800 dark:text-gray-200'}`}>
                         <ReactMarkdown>{message.content}</ReactMarkdown>
                     </div>
                 </div>

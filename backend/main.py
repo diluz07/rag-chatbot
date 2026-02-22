@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 import uvicorn
 import os
 from models import QueryRequest, QueryResponse, UploadResponse
@@ -44,6 +45,14 @@ rag = RAGPipeline()
 @app.get("/", include_in_schema=False)
 async def root():
     return {"message": "RAG Chatbot API is running"}
+
+@app.get("/admin", include_in_schema=False)
+async def admin_page():
+    # Provide a beautiful UI for file uploads
+    # In a real app, this might be protected by auth
+    html_path = os.path.join(os.path.dirname(__file__), "admin.html")
+    with open(html_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
 
 from typing import List
 

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazonia - Admin Upload</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gray-50 text-gray-900 dark:bg-black dark:text-white transition-colors duration-300 min-h-screen flex flex-col">
+    <nav
+        class="sticky top-0 z-40 bg-white/90 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 flex items-center justify-center bg-black dark:bg-white text-white dark:text-black font-black text-lg rounded-lg shadow-sm">
+                    A</div>
+                <span class="font-black tracking-tighter text-xl">AMAZONIA ADMIN</span>
+            </div>
+            <button onclick="toggleTheme()"
+                class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+                <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                    </path>
+                </svg>
+                <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-4xl mx-auto w-full p-6 py-12">
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl md:text-5xl font-black mb-4 tracking-tight">Knowledge Base Upload</h1>
+            <p class="text-gray-500 dark:text-gray-400">Upload PDF documents to train the RAG chatbot's knowledge base.
+            </p>
+        </div>
+
+        <div class="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-sm">
+            <form id="uploadForm" class="flex flex-col items-center">
+                <div class="w-full border-2 border-dashed border-gray-300 dark:border-white/20 rounded-xl p-12 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors cursor-pointer group"
+                    onclick="document.getElementById('fileInput').click()">
+                    <svg class="w-12 h-12 mx-auto text-gray-400 group-hover:text-blue-500 transition-colors mb-4"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                        </path>
+                    </svg>
+                    <p class="text-gray-600 dark:text-gray-300 font-medium mb-1">Click to select PDF files</p>
+                    <p class="text-sm text-gray-400">or drag and drop</p>
+                    <input type="file" id="fileInput" name="files" accept=".pdf" multiple class="hidden"
+                        onchange="updateFileList(this)" />
+                </div>
+
+                <div id="fileList" class="w-full mt-6 space-y-2 empty:hidden"></div>
+
+                <button type="submit" id="submitBtn" disabled
+                    class="mt-8 w-full md:w-auto px-10 py-4 bg-gray-200 text-gray-400 dark:bg-white/5 dark:text-gray-500 rounded-xl font-bold transition-all disabled:cursor-not-allowed">
+                    Upload to Knowledge Base
+                </button>
+            </form>
+
+            <div id="statusMessage" class="mt-6 text-center text-sm font-medium hidden"></div>
+        </div>
+    </main>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const form = document.getElementById('uploadForm');
+
+        let dataTransfer = new DataTransfer();
+
+        function updateFileList(input) {
+            // Add new files to the dataTransfer object
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    // Prevent duplicates based on name and size
+                    const isDuplicate = Array.from(dataTransfer.files).some(f => f.name === file.name && f.size === file.size);
+                    if (!isDuplicate) {
+                        dataTransfer.items.add(file);
+                    }
+                });
+            }
+
+            // Sync the true input with our dataTransfer
+            fileInput.files = dataTransfer.files;
+
+            renderFileList();
+        }
+
+        function removeFile(index) {
+            const newDt = new DataTransfer();
+            const files = Array.from(dataTransfer.files);
+
+            // Re-add all files except the one at the removed index
+            for (let i = 0; i < files.length; i++) {
+                if (i !== index) newDt.items.add(files[i]);
+            }
+
+            dataTransfer = newDt;
+            fileInput.files = dataTransfer.files;
+
+            renderFileList();
+        }
+
+        function renderFileList() {
+            fileList.innerHTML = '';
+            const currentFiles = dataTransfer.files;
+
+            if (currentFiles.length > 0) {
+                Array.from(currentFiles).forEach((file, index) => {
+                    const el = document.createElement('div');
+                    el.className = "flex items-center justify-between p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/10 group";
+                    el.innerHTML = `
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-sm text-gray-700 dark:text-gray-200 truncate font-medium">${file.name}</span>
+                            <span class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </div>
+                        <button type="button" onclick="removeFile(${index})" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors" title="Remove file">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    `;
+                    fileList.appendChild(el);
+                });
+                submitBtn.disabled = false;
+                submitBtn.className = "mt-8 w-full md:w-auto px-10 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg transition-all transform active:scale-95";
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.className = "mt-8 w-full md:w-auto px-10 py-4 bg-gray-200 text-gray-400 dark:bg-white/5 dark:text-gray-500 rounded-xl font-bold transition-all disabled:cursor-not-allowed";
+            }
+            statusMessage.classList.add('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (fileInput.files.length === 0) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Uploading & Processing...';
+            statusMessage.classList.remove('hidden');
+            statusMessage.className = "mt-6 text-center text-sm font-medium text-blue-600 dark:text-blue-400 block";
+            statusMessage.innerText = "Processing documents. This may take a moment...";
+
+            const formData = new FormData();
+            Array.from(fileInput.files).forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                const res = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    statusMessage.className = "mt-6 text-center text-sm font-medium text-green-600 dark:text-green-400 block";
+                    statusMessage.innerText = "Success! Documents added to knowledge base.";
+
+                    // Clear the selection on success
+                    dataTransfer = new DataTransfer();
+                    fileInput.files = dataTransfer.files;
+                    renderFileList();
+
+                    submitBtn.innerText = 'Upload to Knowledge Base';
+                } else {
+                    const err = await res.json();
+                    statusMessage.className = "mt-6 text-center text-sm font-medium text-red-600 dark:text-red-400 block";
+                    statusMessage.innerText = "Error: " + (err.detail || "Upload failed");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Retry Upload';
+                }
+            } catch (err) {
+                statusMessage.className = "mt-6 text-center text-sm font-medium text-red-600 dark:text-red-400 block";
+                statusMessage.innerText = "Error connecting to server.";
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Retry Upload';
+            }
+        });
+    </script>
+</body>
+
+</html>

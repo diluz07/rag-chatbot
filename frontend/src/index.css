@@ -19,10 +19,9 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
-  background-color: var(--bg-app);
-  color: var(--text-primary);
   height: 100vh;
   overflow: hidden;
+  @apply bg-white text-gray-900 dark:bg-black dark:text-white;
 }
 
 #root {
@@ -65,17 +64,31 @@ body {
 /* Prose Styles */
 .prose {
   line-height: 1.6;
-  color: #e0e0e0;
+  color: #374151; /* gray-700 */
+}
+
+.dark .prose {
+  color: #d1d5db; /* gray-300 */
 }
 
 .prose strong {
-  color: #fff;
+  color: #111827; /* gray-900 */
   font-weight: 600;
 }
 
+.dark .prose strong {
+  color: #f9fafb; /* gray-50 */
+}
+
 .prose code {
-  background: #333;
+  background: #f3f4f6; /* gray-100 */
   padding: 2px 4px;
   border-radius: 4px;
   font-size: 0.9em;
+  color: #db2777; /* pink-600 */
+}
+
+.dark .prose code {
+  background: #374151; /* gray-700 */
+  color: #f472b6; /* pink-400 */
 }
