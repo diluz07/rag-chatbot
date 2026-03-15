@@ -4,7 +4,7 @@ import InputArea from './InputArea';
 import axios from 'axios';
 import { MessageCircle, X } from 'lucide-react';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
