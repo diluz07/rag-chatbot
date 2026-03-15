@@ -2,9 +2,11 @@ fastapi
 uvicorn
 python-multipart
 pydantic
-langchain
-langchain-chroma
-langchain-ollama
-langchain-community
+langchain==0.3.27
+langchain-core==0.3.81
+langchain-community==0.3.31
+langchain-chroma==0.2.6
+langchain-ollama==0.3.10
+langchain-text-splitters==0.3.11
 pypdf
 python-dotenv
