@@ -12,8 +12,22 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Outfit', 'sans-serif'],
                     },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            '0%': { opacity: '0.3', transform: 'scale(0.95)' },
+                            '100%': { opacity: '0.8', transform: 'scale(1.05)' }
+                        }
+                    }
                 }
             }
         }
@@ -22,16 +36,80 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Outfit', system-ui, sans-serif;
         }
     </style>
 </head>
 
 <body
-    class="bg-gray-50 text-gray-900 dark:bg-black dark:text-white transition-colors duration-300 min-h-screen flex flex-col">
+    class="bg-gray-50 text-gray-900 dark:bg-black dark:text-white transition-colors duration-300 min-h-screen flex flex-col relative">
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay"
+        class="fixed inset-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-xl flex items-center justify-center transition-opacity duration-300">
+        <div
+            class="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 p-10 rounded-3xl shadow-2xl max-w-md w-full mx-4 flex flex-col items-center">
+            <div class="relative w-16 h-16 flex items-center justify-center mb-8 animate-float">
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl blur-lg animate-glow">
+                </div>
+                <div
+                    class="relative w-full h-full bg-black dark:bg-white rounded-2xl shadow-xl flex items-center justify-center border border-white/10 text-white dark:text-black p-3">
+                    <svg viewBox="0 0 24 24" fill="none" class="w-full h-full drop-shadow-md">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M12 14c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z" />
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M4 22v-2c0-3.314 2.686-6 6-6h4c3.314 0 6 2.686 6 6v2" />
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M6.5 7.5A6.5 6.5 0 0117.5 7.5" />
+                        <rect x="4" y="8" width="4" height="6" rx="2" fill="currentColor" stroke="none" />
+                        <rect x="16" y="8" width="4" height="6" rx="2" fill="currentColor" stroke="none" />
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M6 14v1c0 1.657 1.343 3 3 3h1" />
+                        <circle cx="10" cy="18" r="1.5" fill="currentColor" stroke="none" />
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 10h1.5M13.5 10H15" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-2xl font-black tracking-tight mb-2">Admin Access</h2>
+            <p class="text-sm text-gray-500 mb-8 text-center">Please enter the master password to access the knowledge
+                base controls.</p>
+
+            <form id="loginForm" class="w-full">
+                <div class="relative w-full mb-4">
+                    <input type="password" id="adminPassword" placeholder="Enter Password"
+                        class="w-full pl-4 pr-12 py-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:outline-none focus:border-blue-500 transition-colors text-center"
+                        required>
+                    <button type="button" id="togglePasswordBtn"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 transition-colors focus:outline-none"
+                        onclick="togglePasswordVisibility()">
+                        <svg id="eyeIconOpen" class="w-5 h-5 hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                        <svg id="eyeIconClosed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <button type="submit"
+                    class="w-full px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg">Unlock
+                    Admin Panel</button>
+            </form>
+            <p id="loginError" class="text-red-500 text-sm mt-4 hidden font-medium">Incorrect password. Access denied.
+            </p>
+        </div>
+    </div>
     <nav
         class="sticky top-0 z-40 bg-white/90 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10">
         <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -58,10 +136,19 @@
     </nav>
 
     <main class="flex-1 max-w-4xl mx-auto w-full p-6 py-12">
-        <div class="mb-10 text-center">
+        <div class="mb-10 text-center flex flex-col items-center">
             <h1 class="text-3xl md:text-5xl font-black mb-4 tracking-tight">Knowledge Base Upload</h1>
-            <p class="text-gray-500 dark:text-gray-400">Upload PDF documents to train the RAG chatbot's knowledge base.
-            </p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">Upload PDF documents to train the RAG chatbot's knowledge
+                base.</p>
+            <button onclick="clearKnowledgeBase()"
+                class="px-5 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 dark:text-red-400 dark:bg-red-500/10 dark:hover:bg-red-500/20 rounded-full transition-colors border border-red-200 dark:border-red-500/20 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                </svg>
+                Clear Knowledge Base
+            </button>
         </div>
 
         <div class="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-sm">
@@ -98,6 +185,72 @@
         const submitBtn = document.getElementById('submitBtn');
         const statusMessage = document.getElementById('statusMessage');
         const form = document.getElementById('uploadForm');
+
+        const loginOverlay = document.getElementById('loginOverlay');
+        const loginForm = document.getElementById('loginForm');
+        const passwordInput = document.getElementById('adminPassword');
+        const loginError = document.getElementById('loginError');
+
+        function togglePasswordVisibility() {
+            const eyeOpen = document.getElementById('eyeIconOpen');
+            const eyeClosed = document.getElementById('eyeIconClosed');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            }
+        }
+
+        // Check if already logged in via session
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedPassword = sessionStorage.getItem('adminPassword');
+            if (savedPassword) {
+                // Pre-verify saved password smoothly
+                verifyPassword(savedPassword).then(success => {
+                    if (success) loginOverlay.classList.add('hidden');
+                    else sessionStorage.removeItem('adminPassword');
+                });
+            }
+        });
+
+        async function verifyPassword(pwd) {
+            try {
+                const res = await fetch('/verify-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pwd })
+                });
+                return res.ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pwd = passwordInput.value;
+            const btn = loginForm.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = "Verifying...";
+
+            const success = await verifyPassword(pwd);
+            if (success) {
+                sessionStorage.setItem('adminPassword', pwd);
+                loginOverlay.classList.add('opacity-0');
+                setTimeout(() => loginOverlay.classList.add('hidden'), 300);
+            } else {
+                loginError.classList.remove('hidden');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+            btn.disabled = false;
+            btn.innerText = "Unlock Admin Panel";
+        });
 
         let dataTransfer = new DataTransfer();
 
@@ -180,6 +333,9 @@
             try {
                 const res = await fetch('/upload', {
                     method: 'POST',
+                    headers: {
+                        'X-Admin-Password': sessionStorage.getItem('adminPassword')
+                    },
                     body: formData
                 });
 
@@ -207,6 +363,43 @@
                 submitBtn.innerText = 'Retry Upload';
             }
         });
+
+        async function clearKnowledgeBase() {
+            const pwdPrompt = prompt("CRITICAL WARNING:\nAre you sure you want to permanently clear the knowledge base?\n\nTo authorize this action, please re-enter the Master Password:");
+
+            if (pwdPrompt === null) {
+                return; // User cancelled
+            }
+
+            statusMessage.classList.remove('hidden');
+            statusMessage.className = "mt-6 text-center text-sm font-medium text-blue-600 dark:text-blue-400 block";
+            statusMessage.innerText = "Verifying authorization & clearing knowledge base...";
+
+            try {
+                const res = await fetch('/clear', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Admin-Password': pwdPrompt
+                    }
+                });
+
+                if (res.ok) {
+                    statusMessage.className = "mt-6 text-center text-sm font-medium text-green-600 dark:text-green-400 block";
+                    statusMessage.innerText = "Success! Knowledge base has been completely cleared.";
+                } else {
+                    const err = await res.json();
+                    statusMessage.className = "mt-6 text-center text-sm font-medium text-red-600 dark:text-red-400 block";
+                    if (res.status === 401) {
+                        statusMessage.innerText = "Authorization Failed: Incorrect master password provided.";
+                    } else {
+                        statusMessage.innerText = "Error: " + (err.detail || "Failed to clear knowledge base");
+                    }
+                }
+            } catch (err) {
+                statusMessage.className = "mt-6 text-center text-sm font-medium text-red-600 dark:text-red-400 block";
+                statusMessage.innerText = "Error connecting to server.";
+            }
+        }
     </script>
 </body>
 

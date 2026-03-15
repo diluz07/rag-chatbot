@@ -78,3 +78,19 @@ class RAGPipeline:
         # Deduplicate sources
         sources = list(set(sources))
         return answer, sources
+
+    async def clear_knowledge_base(self):
+        # Delete the existing collection
+        self.vector_store.delete_collection()
+        
+        # Re-initialize the vector store to start fresh
+        self.vector_store = Chroma(
+            persist_directory=self.persist_directory,
+            embedding_function=self.embeddings,
+            collection_name="rag_collection"
+        )
+        
+        # Re-initialize the retriever and chains with the fresh store
+        self.retriever = self.vector_store.as_retriever(search_kwargs={"k": 5})
+        self.rag_chain = create_retrieval_chain(self.retriever, self.question_answer_chain)
+        return True

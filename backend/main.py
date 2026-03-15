@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 import uvicorn
@@ -54,10 +54,27 @@ async def admin_page():
     with open(html_path, "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
-from typing import List
+from typing import List, Annotated
+
+def verify_password(x_admin_password: Annotated[str, Header()] = None):
+    correct_password = os.getenv("ADMIN_PASSWORD", "secret123")
+    if x_admin_password != correct_password:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+    return x_admin_password
+
+@app.post("/verify-password", tags=["Admin"])
+async def verify_admin_password(password: dict):
+    # Quick endpoint for the frontend to check if a password is correct
+    correct_password = os.getenv("ADMIN_PASSWORD", "secret123")
+    if password.get("password") == correct_password:
+        return {"status": "success"}
+    raise HTTPException(status_code=401, detail="Invalid password")
 
 @app.post("/upload", response_model=List[UploadResponse], tags=["Admin"])
-async def upload_document(files: List[UploadFile] = File(...)):
+async def upload_document(
+    files: List[UploadFile] = File(...),
+    admin_auth: str = Depends(verify_password)
+):
     results = []
     try:
         # Save temp file
@@ -80,6 +97,19 @@ async def upload_document(files: List[UploadFile] = File(...)):
             results.append(UploadResponse(filename=file.filename, status="Successfully ingrained in vector store"))
         
         return results
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/clear", tags=["Admin"])
+async def clear_knowledge_base(admin_auth: str = Depends(verify_password)):
+    try:
+        success = await rag.clear_knowledge_base()
+        if success:
+            return {"status": "success", "message": "Knowledge base has been permanently cleared and reset."}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to clear knowledge base")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

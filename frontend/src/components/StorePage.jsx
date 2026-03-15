@@ -10,6 +10,98 @@ const fadeInUp = {
     transition: { duration: 0.5 }
 };
 
+const SandLogo = ({ className = "w-10 h-10" }) => (
+    <motion.svg
+        viewBox="0 0 100 100"
+        className={className}
+        animate={{
+            rotate: [0, 180, 360],
+            scale: [1, 1.05, 1],
+        }}
+        transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+            scale: {
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }
+        }}
+    >
+        <defs>
+            <linearGradient id="sandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" className="stop-color-blue-600 dark:stop-color-blue-400" stopColor="currentColor" />
+                <stop offset="100%" className="stop-color-purple-600 dark:stop-color-purple-400" stopColor="currentColor" />
+            </linearGradient>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+
+        {/* Outer Ring */}
+        <motion.circle
+            cx="50" cy="50" r="45"
+            fill="none"
+            stroke="url(#sandGradient)"
+            strokeWidth="2"
+            opacity="0.3"
+        />
+
+        {/* Geometric S / Hourglass Shape */}
+        <motion.path
+            d="M 30,30 L 70,30 L 30,70 L 70,70"
+            fill="none"
+            stroke="url(#sandGradient)"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#glow)"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+        />
+
+        {/* Abstract Nodes */}
+        <circle cx="30" cy="30" r="6" fill="url(#sandGradient)" filter="url(#glow)" />
+        <circle cx="70" cy="70" r="6" fill="url(#sandGradient)" filter="url(#glow)" />
+    </motion.svg>
+);
+
+const AnimatedBrandText = ({ className = "" }) => {
+    const chars = "A M A Z O N I A".split("");
+    return (
+        <span className={`font-black flex ${className}`}>
+            {chars.map((char, i) => (
+                <motion.span
+                    key={i}
+                    variants={{
+                        initial: { opacity: 0, y: -10 },
+                        animate: {
+                            opacity: 1,
+                            y: 0,
+                            transition: { duration: 0.5, delay: i * 0.03 + 0.2, ease: "easeOut" }
+                        },
+                        hover: {
+                            y: char === " " ? 0 : [0, -6, 0],
+                            color: char === " " ? "currentColor" : ["currentColor", "#3b82f6", "#a855f7", "currentColor"],
+                            scale: char === " " ? 1 : [1, 1.1, 1],
+                            transition: { duration: 0.5, ease: "easeInOut", delay: i * 0.015 }
+                        }
+                    }}
+                    className="inline-block"
+                >
+                    {char === " " ? "\u00A0" : char}
+                </motion.span>
+            ))}
+        </span>
+    );
+};
+
 const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
     if (!product || !isOpen) return null;
 
@@ -90,6 +182,7 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
 const ProductCard = ({ title, price, image, category, rating, onView }) => (
     <motion.div
         variants={fadeInUp}
+        whileHover={{ y: -10 }}
         onClick={() => onView({ title, price, image, category, rating })}
         className="bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-sm hover:shadow-xl dark:hover:shadow-2xl dark:hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer overflow-hidden border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/20 group relative flex flex-col h-full"
     >
@@ -210,12 +303,17 @@ const StorePage = () => {
             />
 
             {/* Navbar */}
-            <nav className="sticky top-0 z-40 bg-white/90 dark:bg-black/60 backdrop-blur-xl border-b border-gray-100 dark:border-white/10">
+            <motion.nav
+                initial={{ y: "-100%" }}
+                animate={{ y: 0 }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                className="sticky top-0 z-40 bg-white/90 dark:bg-black/60 backdrop-blur-xl border-b border-gray-100 dark:border-white/10"
+            >
                 <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-4 md:gap-8 justify-between">
-                    <div className="flex items-center gap-3 cursor-pointer">
-                        <div className="w-10 h-10 bg-black dark:bg-white rounded-xl flex items-center justify-center text-white dark:text-black font-black text-xl shadow-lg dark:shadow-[0_0_15px_rgba(255,255,255,0.3)]">A</div>
-                        <span className="font-black text-2xl tracking-tighter hidden md:block text-gray-900 dark:text-white">AMAZONIA</span>
-                    </div>
+                    <motion.div initial="initial" animate="animate" whileHover="hover" className="flex items-center gap-3 cursor-pointer group">
+                        <SandLogo className="w-10 h-10 drop-shadow-lg" />
+                        <AnimatedBrandText className="text-2xl tracking-[0.2em] ml-2 hidden md:flex text-gray-900 dark:text-white" />
+                    </motion.div>
 
                     <div className="flex-1 max-w-xl mx-auto hidden md:block relative group">
                         <input
@@ -241,32 +339,40 @@ const StorePage = () => {
                         </div>
                     </div>
                 </div>
-            </nav>
+            </motion.nav>
 
             {/* Hero Section */}
             <div className="relative h-[700px] overflow-hidden">
                 <div className="absolute inset-0 bg-gray-100 dark:bg-black transition-colors duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-100/80 dark:from-black dark:via-black/80 to-transparent z-10 transition-colors duration-500"></div>
-                    <img
+                    <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-100/80 dark:from-black dark:via-black/80 to-transparent z-10 transition-colors duration-500 pointer-events-none"></div>
+                    <motion.img
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                         src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop"
-                        className={`w-full h-full object-cover transition-all duration-500 ${isDarkMode ? 'opacity-60 mix-blend-luminosity' : 'opacity-80 mix-blend-multiply'}`}
+                        className={`w-full h-full object-cover transition-colors duration-500 ${isDarkMode ? 'opacity-60 mix-blend-luminosity' : 'opacity-80 mix-blend-multiply'}`}
                         alt="Hero"
                     />
                 </div>
 
                 <div className="relative z-20 max-w-7xl mx-auto px-4 h-full flex items-center">
                     <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8 }}
+                        initial="initial"
+                        animate="whileInView"
+                        variants={{
+                            initial: { opacity: 0 },
+                            whileInView: {
+                                opacity: 1,
+                                transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+                            }
+                        }}
                         className="max-w-2xl"
                     >
-                        <span className="inline-block px-4 py-1.5 bg-gray-900/10 dark:bg-white/20 backdrop-blur-md border border-gray-900/20 dark:border-white/30 text-gray-900 dark:text-white text-xs font-bold rounded-full mb-6 tracking-widest shadow-sm">NEW ARRIVALS</span>
-                        <h1 className="text-6xl md:text-8xl font-black mb-8 leading-[1.1] tracking-tighter text-gray-900 dark:text-white drop-shadow-lg">Future Tech <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-300 dark:via-indigo-300 dark:to-purple-300">Collection</span></h1>
-                        <p className="text-gray-700 dark:text-gray-200 text-xl md:text-2xl mb-12 max-w-lg leading-relaxed font-light drop-shadow">Discover the latest gadgets and accessories designed for the modern era.</p>
-                        <div className="flex gap-4">
+                        <motion.span variants={fadeInUp} className="inline-block px-4 py-1.5 bg-gray-900/10 dark:bg-white/20 backdrop-blur-md border border-gray-900/20 dark:border-white/30 text-gray-900 dark:text-white text-xs font-bold rounded-full mb-6 tracking-widest shadow-sm">NEW ARRIVALS</motion.span>
+                        <motion.h1 variants={fadeInUp} className="text-6xl md:text-8xl font-black mb-8 leading-[1.1] tracking-tighter text-gray-900 dark:text-white drop-shadow-lg">Future Tech <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-300 dark:via-indigo-300 dark:to-purple-300">Collection</span></motion.h1>
+                        <motion.p variants={fadeInUp} className="text-gray-700 dark:text-gray-200 text-xl md:text-2xl mb-12 max-w-lg leading-relaxed font-light drop-shadow">Discover the latest gadgets and accessories designed for the modern era.</motion.p>
+                        <motion.div variants={fadeInUp} className="flex gap-4">
                             <button onClick={() => scrollToSection('trending')} className="bg-gray-900 text-white dark:bg-white dark:text-black px-10 py-5 rounded-full font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-xl hover:shadow-[0_0_40px_rgba(255,255,255,0.25)] hover:-translate-y-1 transform duration-300">Explore Collection</button>
-                        </div>
+                        </motion.div>
                     </motion.div>
                 </div>
             </div>
@@ -307,12 +413,18 @@ const StorePage = () => {
                         { name: 'Gaming', color: 'from-cyan-500 to-blue-600' },
                         { name: 'Books', color: 'from-amber-400 to-orange-500' }
                     ].map((cat, i) => (
-                        <div key={cat.name} className="min-w-[200px] h-[260px] rounded-3xl bg-gray-100 dark:bg-[#0a0a0a] relative overflow-hidden group cursor-pointer flex-shrink-0 shadow-sm hover:shadow-2xl transition-all border border-transparent dark:border-white/5 dark:hover:border-white/20">
+                        <motion.div
+                            key={cat.name}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="min-w-[200px] h-[260px] rounded-3xl bg-gray-100 dark:bg-[#0a0a0a] relative overflow-hidden group cursor-pointer flex-shrink-0 shadow-sm hover:shadow-2xl border border-transparent dark:border-white/5 dark:hover:border-white/20"
+                        >
                             <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-80 dark:opacity-40 group-hover:opacity-100 dark:group-hover:opacity-80 transition-opacity duration-500 dark:mix-blend-screen`}></div>
                             <div className="absolute inset-0 flex items-center justify-center p-4">
                                 <span className="text-white font-bold text-2xl text-center tracking-tight drop-shadow-md">{cat.name}</span>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </motion.div>
 
@@ -340,7 +452,7 @@ const StorePage = () => {
                         price="1,39,999"
                         category="Photography"
                         rating="4.9"
-                        image="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=400"
+                        image="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&q=80&w=400"
                         onView={setSelectedProduct}
                     />
                     <ProductCard
@@ -348,7 +460,7 @@ const StorePage = () => {
                         price="89,900"
                         category="Wearables"
                         rating="4.7"
-                        image="https://images.unsplash.com/photo-1673307583652-3200746fd812?auto=format&fit=crop&q=80&w=400"
+                        image="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=400"
                         onView={setSelectedProduct}
                     />
                     <ProductCard
@@ -356,7 +468,7 @@ const StorePage = () => {
                         price="16,995"
                         category="Fashion"
                         rating="4.5"
-                        image="https://images.unsplash.com/photo-1514989940723-e8875ea6ab7d?auto=format&fit=crop&q=80&w=400"
+                        image="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400"
                         onView={setSelectedProduct}
                     />
                     <ProductCard
@@ -388,7 +500,7 @@ const StorePage = () => {
                         price="45,900"
                         category="Beauty"
                         rating="4.7"
-                        image="https://images.unsplash.com/photo-1522338242992-e1a54906a8ae?auto=format&fit=crop&q=80&w=400"
+                        image="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&q=80&w=400"
                         onView={setSelectedProduct}
                     />
                 </motion.div>
@@ -400,8 +512,16 @@ const StorePage = () => {
                     viewport={{ once: true }}
                     className="rounded-[2.5rem] bg-black text-white p-12 md:p-24 text-center relative overflow-hidden"
                 >
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[128px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600 rounded-full blur-[128px] opacity-20 -translate-x-1/2 translate-y-1/2"></div>
+                    <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.3, 0.2] }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[128px] translate-x-1/2 -translate-y-1/2"
+                    ></motion.div>
+                    <motion.div
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.35, 0.2] }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                        className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600 rounded-full blur-[128px] -translate-x-1/2 translate-y-1/2"
+                    ></motion.div>
 
                     <div className="relative z-10 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">Join the Community</h2>
@@ -423,10 +543,10 @@ const StorePage = () => {
             <footer className="bg-gray-50 dark:bg-black border-t border-gray-200 dark:border-white/10 pt-24 pb-12">
                 <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-12 mb-20">
                     <div>
-                        <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 bg-black dark:bg-white rounded-xl flex items-center justify-center text-white dark:text-black font-black text-xl">A</div>
-                            <span className="font-black tracking-tighter text-2xl text-gray-900 dark:text-white">AMAZONIA</span>
-                        </div>
+                        <motion.div initial="initial" whileInView="animate" viewport={{ once: true }} whileHover="hover" className="flex items-center gap-3 mb-8 cursor-pointer group w-fit">
+                            <SandLogo className="w-10 h-10" />
+                            <AnimatedBrandText className="tracking-[0.2em] ml-2 text-2xl text-gray-900 dark:text-white flex" />
+                        </motion.div>
                         <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
                             The world's most innovative destination for tech and lifestyle. Built for the modern consumer.
                         </p>
