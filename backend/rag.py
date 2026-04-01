@@ -14,10 +14,17 @@ load_dotenv()
 class RAGPipeline:
     def __init__(self):
         self.persist_directory = "./chroma_db"
-        
+        base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+        api_key = os.environ.get("OLLAMA_API_KEY")
+        client_kwargs = {"headers": {"Authorization": f"Bearer {api_key}"}} if api_key else {}
+
         # Setup Vector Store with Ollama Embeddings (Nomic is highly efficient)
         # Make sure to run `ollama pull nomic-embed-text` in your terminal
-        self.embeddings = OllamaEmbeddings(model="nomic-embed-text")
+        self.embeddings = OllamaEmbeddings(
+            model="nomic-embed-text",
+            base_url=base_url,
+            client_kwargs=client_kwargs
+        )
         
         # Initialize Vector Store
         self.vector_store = Chroma(
@@ -27,7 +34,12 @@ class RAGPipeline:
         )
         
         # Setup LLM (Ollama - Llama 3 8B)
-        self.llm = ChatOllama(model="llama3", temperature=0)
+        self.llm = ChatOllama(
+            model="llama3", 
+            temperature=0,
+            base_url=base_url,
+            client_kwargs=client_kwargs
+        )
         
         # Create retrieval chain components
         self.retriever = self.vector_store.as_retriever(search_kwargs={"k": 5})
